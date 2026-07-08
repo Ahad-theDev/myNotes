@@ -36,87 +36,80 @@ class _LoginViewState extends State<LoginView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Login"), backgroundColor: Colors.blue),
-      body: FutureBuilder(
-        future: Firebase.initializeApp(
-          options: DefaultFirebaseOptions.currentPlatform,
-        ),
-        builder: (context, snapshot) {
-          switch (snapshot.connectionState) {
-            case ConnectionState.done:
-              // TODO: Handle this case.
-              return Form(
-                key: _formKey,
-                child: (Column(
-                  children: [
-                    TextFormField(
-                      controller: _email,
-                      enableSuggestions: false,
-                      autocorrect: false,
-                      keyboardType: TextInputType.emailAddress,
-                      decoration: const InputDecoration(hintText: "Enter email"),
-                      validator: (value)
-                      {
-                        if(value == null || value.trim().isEmpty)
-                          {
-                            return "Please Enter your email";
-                          }
-                        if (!value.contains("@"))
-                          {
-                            return "Please Enter a valid email";
-                          }
-                        return null;
-                      },
+      appBar: AppBar(title: const Text("Login"),
+      backgroundColor: Colors.blue,),
+      body: Form(
+        key: _formKey,
+        child: (Column(
+          children: [
+            TextFormField(
+              controller: _email,
+              enableSuggestions: false,
+              autocorrect: false,
+              keyboardType: TextInputType.emailAddress,
+              decoration: const InputDecoration(hintText: "Enter email"),
+              validator: (value)
+              {
+                if(value == null || value.trim().isEmpty)
+                {
+                  return "Please Enter your email";
+                }
+                if (!value.contains("@"))
+                {
+                  return "Please Enter a valid email";
+                }
+                return null;
+              },
+            ),
+            TextFormField(
+              controller: _password,
+              obscureText: true,
+              enableSuggestions: false,
+              autocorrect: false,
+              decoration: InputDecoration(hintText: "Enter password"),
+              validator: (value)
+              {
+                if (value == null || value.isEmpty)
+                {
+                  return "Please Enter your password";
+                }
+                if (value.length < 8)
+                {
+                  return "Password must be alteast of 8 characters";
+                }
+                return null;
+              },
+            ),
+            TextButton(
+              onPressed: () async {
+                if (!_formKey.currentState!.validate())
+                {
+                  return;
+                }
+                try {
+                  final userCredential = await FirebaseAuth.instance
+                      .signInWithEmailAndPassword(
+                    email: _email.text.trim(),
+                    password: _password.text,
+                  );
+                  print(userCredential);
+                } on FirebaseAuthException catch (e) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(e.message ?? "Authentication failed"),
                     ),
-                    TextFormField(
-                      controller: _password,
-                      obscureText: true,
-                      enableSuggestions: false,
-                      autocorrect: false,
-                      decoration: InputDecoration(hintText: "Enter password"),
-                      validator: (value)
-                      {
-                        if (value == null || value.isEmpty)
-                          {
-                            return "Please Enter your password";
-                          }
-                        if (value.length < 8)
-                          {
-                            return "Password must be alteast of 8 characters";
-                          }
-                        return null;
-                      },
-                    ),
-                    TextButton(
-                      onPressed: () async {
-                        if (!_formKey.currentState!.validate())
-                          {
-                            return;
-                          }
-                        try {
-                          final userCredential = await FirebaseAuth.instance
-                              .signInWithEmailAndPassword(
-                                email: _email.text.trim(),
-                                password: _password.text,
-                              );
-                          print(userCredential);
-                        } on FirebaseAuthException catch (e) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(e.message ?? "Authentication failed"),
-                            ),
-                          );
-                        }
-                      },
-                      child: const Text("Login"),
-                    ),
-                  ],
-                )),
-              );
-            default:
-              return const Center(child: CircularProgressIndicator());
-          }
-        },
+                  );
+                }
+              },
+              child: const Text("Login"),
+            ),
+            TextButton(onPressed: (){
+              Navigator.of(context).pushNamedAndRemoveUntil("/register/", (route) => false);
+            },
+                child: Text("Not Registerd yet? Register Now!"),
+            ),
+          ],
+        )),
       ),
     );
   }
