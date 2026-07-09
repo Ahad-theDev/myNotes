@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'dart:developer' as devtools show log;
 
 import '../firebase_options.dart';
 
@@ -85,7 +86,8 @@ class _RegisterViewState extends State<RegisterView> {
                         email: _email.text.trim(),
                         password: _password.text,
                       );
-                  print(userCredential);
+                  // print(userCredential);
+                  devtools.log(userCredential.toString());
                 } on FirebaseAuthException catch (e) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text(e.code ?? "Registeration Failed")),
@@ -98,7 +100,7 @@ class _RegisterViewState extends State<RegisterView> {
               onPressed: () {
                 Navigator.of(context).pushNamedAndRemoveUntil("/login/", (route)=>false);
               },
-              child: const Text("Already registerd? Login here!"),
+              child: const Text("Already registered? Login here!"),
             ),
           ],
         ),

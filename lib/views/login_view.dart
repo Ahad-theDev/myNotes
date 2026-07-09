@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'dart:developer' as devtools show log;
 
 import '../firebase_options.dart';
 
@@ -87,12 +88,15 @@ class _LoginViewState extends State<LoginView> {
                   return;
                 }
                 try {
-                  final userCredential = await FirebaseAuth.instance
+                  await FirebaseAuth.instance
                       .signInWithEmailAndPassword(
                     email: _email.text.trim(),
                     password: _password.text,
                   );
-                  print(userCredential);
+                  Navigator.of(context).pushNamedAndRemoveUntil("/notes/", (r) => false);
+                  // devtools.log(userCredential.toString());
+                  // print(userCredential);
+
                 } on FirebaseAuthException catch (e) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
@@ -106,7 +110,7 @@ class _LoginViewState extends State<LoginView> {
             TextButton(onPressed: (){
               Navigator.of(context).pushNamedAndRemoveUntil("/register/", (route) => false);
             },
-                child: Text("Not Registerd yet? Register Now!"),
+                child: Text("Not Registered yet? Register Now!"),
             ),
           ],
         )),
