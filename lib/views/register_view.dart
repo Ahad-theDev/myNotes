@@ -3,6 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mynotes/constants/routes.dart';
+import 'package:mynotes/utilities/show_error_dialog.dart';
 import 'dart:developer' as devtools show log;
 
 import '../firebase_options.dart';
@@ -82,24 +83,34 @@ class _RegisterViewState extends State<RegisterView> {
                   return;
                 }
                 try {
-                  final userCredential = await FirebaseAuth.instance
-                      .createUserWithEmailAndPassword(
-                        email: _email.text.trim(),
-                        password: _password.text,
-                      );
-                  // print(userCredential);
-                  devtools.log(userCredential.toString());
-                } on FirebaseAuthException catch (e) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(e.code ?? "Registeration Failed")),
+                  await FirebaseAuth.instance.createUserWithEmailAndPassword(
+                    email: _email.text.trim(),
+                    password: _password.text,
                   );
+                  final user = FirebaseAuth.instance.currentUser;
+                  await user?.sendEmailVerification();
+                  if (!context.mounted) return;
+                  Navigator.of(context).pushNamed(verifyEmailRoute);
+                  // print(userCredential);
+                } on FirebaseAuthException catch (e) {
+                  if (!mounted) return;
+                  await showErrorDialog(context, e.message.toString());
+                  // ScaffoldMessenger.of(context).showSnackBar(
+                  //   SnackBar(content: Text(e.code ?? "Registration Failed")),
+                  // );
+                } catch (e) {
+                  if (!mounted) return;
+                  await showErrorDialog(context, e.toString());
                 }
               },
               child: const Text("Register"),
             ),
             TextButton(
-              onPressed: () {
-                Navigator.of(context).pushNamedAndRemoveUntil(loginRoute, (route)=>false);
+              onPressed: () async {
+                if (!context.mounted) return;
+                Navigator.of(
+                  context,
+                ).pushNamedAndRemoveUntil(loginRoute, (route) => false);
               },
               child: const Text("Already registered? Login here!"),
             ),
