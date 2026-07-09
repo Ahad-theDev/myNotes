@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:mynotes/constants/routes.dart';
 import 'dart:developer' as devtools show log;
 
 import '../firebase_options.dart';
@@ -93,7 +94,7 @@ class _LoginViewState extends State<LoginView> {
                     email: _email.text.trim(),
                     password: _password.text,
                   );
-                  Navigator.of(context).pushNamedAndRemoveUntil("/notes/", (r) => false);
+                  Navigator.of(context).pushNamedAndRemoveUntil(notesRoute, (r) => false);
                   // devtools.log(userCredential.toString());
                   // print(userCredential);
 
@@ -108,7 +109,7 @@ class _LoginViewState extends State<LoginView> {
               child: const Text("Login"),
             ),
             TextButton(onPressed: (){
-              Navigator.of(context).pushNamedAndRemoveUntil("/register/", (route) => false);
+              Navigator.of(context).pushNamedAndRemoveUntil(registerRoute, (route) => false);
             },
                 child: Text("Not Registered yet? Register Now!"),
             ),
