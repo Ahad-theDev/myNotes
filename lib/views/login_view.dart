@@ -6,6 +6,7 @@ import 'package:mynotes/constants/routes.dart';
 import 'dart:developer' as devtools show log;
 
 import '../firebase_options.dart';
+import '../utilities/show_error_dialog.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
@@ -99,11 +100,17 @@ class _LoginViewState extends State<LoginView> {
                   // print(userCredential);
 
                 } on FirebaseAuthException catch (e) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(e.message ?? "Authentication failed"),
-                    ),
-                  );
+                  // devtools.log(e.code.toString());
+                  // devtools.log(e.message.toString());
+                  await showErrorDialog(context, e.message.toString());
+                  // ScaffoldMessenger.of(context).showSnackBar(
+                  //   SnackBar(
+                  //     content: Text(e.message ?? "Authentication failed"),
+                  //   ),
+                  // );
+                } catch (e)
+                {
+                  await showErrorDialog(context,e.toString());
                 }
               },
               child: const Text("Login"),
@@ -119,3 +126,5 @@ class _LoginViewState extends State<LoginView> {
     );
   }
 }
+
+
