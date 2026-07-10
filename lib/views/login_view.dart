@@ -1,11 +1,8 @@
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mynotes/constants/routes.dart';
-import 'dart:developer' as devtools show log;
+import 'package:mynotes/services/auth/auth_services.dart';
 
-import '../firebase_options.dart';
+import '../services/auth/auth_exceptions.dart';
 import '../utilities/show_error_dialog.dart';
 
 class LoginView extends StatefulWidget {
@@ -39,8 +36,7 @@ class _LoginViewState extends State<LoginView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Login"),
-      backgroundColor: Colors.blue,),
+      appBar: AppBar(title: const Text("Login"), backgroundColor: Colors.blue),
       body: Form(
         key: _formKey,
         child: (Column(
@@ -51,14 +47,11 @@ class _LoginViewState extends State<LoginView> {
               autocorrect: false,
               keyboardType: TextInputType.emailAddress,
               decoration: const InputDecoration(hintText: "Enter email"),
-              validator: (value)
-              {
-                if(value == null || value.trim().isEmpty)
-                {
+              validator: (value) {
+                if (value == null || value.trim().isEmpty) {
                   return "Please Enter your email";
                 }
-                if (!value.contains("@"))
-                {
+                if (!value.contains("@")) {
                   return "Please Enter a valid email";
                 }
                 return null;
@@ -70,14 +63,11 @@ class _LoginViewState extends State<LoginView> {
               enableSuggestions: false,
               autocorrect: false,
               decoration: InputDecoration(hintText: "Enter password"),
-              validator: (value)
-              {
-                if (value == null || value.isEmpty)
-                {
+              validator: (value) {
+                if (value == null || value.isEmpty) {
                   return "Please Enter your password";
                 }
-                if (value.length < 8)
-                {
+                if (value.length < 8) {
                   return "Password must be alteast of 8 characters";
                 }
                 return null;
@@ -85,51 +75,48 @@ class _LoginViewState extends State<LoginView> {
             ),
             TextButton(
               onPressed: () async {
-                if (!_formKey.currentState!.validate())
-                {
+                if (!_formKey.currentState!.validate()) {
                   return;
                 }
                 try {
-                  await FirebaseAuth.instance
-                      .signInWithEmailAndPassword(
+
+                  await AuthServices.firebase().logIn(
                     email: _email.text.trim(),
                     password: _password.text,
                   );
-                  final user = FirebaseAuth.instance.currentUser;
-                  if (user?.emailVerified ?? false)
-                    {
-                      if(!context.mounted) return;
-                      Navigator.of(context).pushNamedAndRemoveUntil(notesRoute, (r) => false);
-                    }
-                  else
-                    {
-                      if(!context.mounted) return;
-                      Navigator.of(context).pushNamedAndRemoveUntil(verifyEmailRoute, (r)=> false);
-                    }
-
-                  // devtools.log(userCredential.toString());
-                  // print(userCredential);
-
-                } on FirebaseAuthException catch (e) {
-                  // devtools.log(e.code.toString());
-                  // devtools.log(e.message.toString());
-                  await showErrorDialog(context, e.message.toString());
-                  // ScaffoldMessenger.of(context).showSnackBar(
-                  //   SnackBar(
-                  //     content: Text(e.message ?? "Authentication failed"),
-                  //   ),
-                  // );
-                } catch (e)
+                  final user = AuthServices.firebase().currentUser;
+                  if (user?.isEmailVerified ?? false) {
+                    if (!context.mounted) return;
+                    Navigator.of(
+                      context,
+                    ).pushNamedAndRemoveUntil(notesRoute, (r) => false);
+                  } else {
+                    if (!context.mounted) return;
+                    Navigator.of(
+                      context,
+                    ).pushNamedAndRemoveUntil(verifyEmailRoute, (r) => false);
+                  }
+                } on UserFireBaseAuthException catch (e)
                 {
-                  await showErrorDialog(context,e.toString());
+                  await showErrorDialog(context, e.message?? "Authentication failed");
+                } on UserNotLoggedInAuthException
+                {
+                  await showErrorDialog(context, "User-not logged In",);
+                }
+                on GenericAuthException
+                {
+                  await showErrorDialog(context, "Authentication Error");
                 }
               },
               child: const Text("Login"),
             ),
-            TextButton(onPressed: (){
-              Navigator.of(context).pushNamedAndRemoveUntil(registerRoute, (route) => false);
-            },
-                child: Text("Not Registered yet? Register Now!"),
+            TextButton(
+              onPressed: () {
+                Navigator.of(
+                  context,
+                ).pushNamedAndRemoveUntil(registerRoute, (route) => false);
+              },
+              child: Text("Not Registered yet? Register Now!"),
             ),
           ],
         )),
@@ -137,5 +124,3 @@ class _LoginViewState extends State<LoginView> {
     );
   }
 }
-
-

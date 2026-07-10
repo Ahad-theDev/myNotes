@@ -1,6 +1,7 @@
-class UserFireBaseAuthException implements Exception
-{
+class UserFireBaseAuthException implements Exception {
+  final String? message;
 
+  const UserFireBaseAuthException(this.message);
 }
 class GenericAuthException implements Exception
 {

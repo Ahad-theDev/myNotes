@@ -1,3 +1,5 @@
+import 'package:firebase_core/firebase_core.dart';
+import 'package:mynotes/firebase_options.dart';
 import 'package:mynotes/services/auth/auth_exceptions.dart';
 import 'package:mynotes/services/auth/auth_provider.dart';
 import 'package:mynotes/services/auth/auth_user.dart';
@@ -23,7 +25,7 @@ class FirebaseAuthProvider implements AuthProvider {
         throw UserNotLoggedInAuthException();
       }
     } on FirebaseAuthException catch (e) {
-      throw UserFireBaseAuthException();
+      throw UserFireBaseAuthException(e.message);
     } catch (_) {
       throw GenericAuthException();
     }
@@ -60,7 +62,7 @@ class FirebaseAuthProvider implements AuthProvider {
           throw UserNotLoggedInAuthException();
         }
     } on FirebaseAuthException catch (e) {
-      throw UserFireBaseAuthException();
+      throw UserFireBaseAuthException(e.message);
     } catch (_) {
       throw GenericAuthException();
     }
@@ -83,10 +85,16 @@ class FirebaseAuthProvider implements AuthProvider {
   Future<void> sendEmailVerifications() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user != null) {
-      await sendEmailVerifications();
+      await user.sendEmailVerification();
     } else {
       throw UserNotLoggedInAuthException();
     }
-    throw UnimplementedError();
   }
+
+  @override
+  Future<void> initialize() async{
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+        }
 }

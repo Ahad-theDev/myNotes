@@ -1,12 +1,10 @@
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter/cupertino.dart';
+// import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:mynotes/constants/routes.dart';
+import 'package:mynotes/services/auth/auth_services.dart';
 import 'package:mynotes/utilities/show_error_dialog.dart';
-import 'dart:developer' as devtools show log;
 
-import '../firebase_options.dart';
+import '../services/auth/auth_exceptions.dart';
 
 class RegisterView extends StatefulWidget {
   const RegisterView({super.key});
@@ -83,24 +81,21 @@ class _RegisterViewState extends State<RegisterView> {
                   return;
                 }
                 try {
-                  await FirebaseAuth.instance.createUserWithEmailAndPassword(
-                    email: _email.text.trim(),
-                    password: _password.text,
-                  );
-                  final user = FirebaseAuth.instance.currentUser;
-                  await user?.sendEmailVerification();
+                  await AuthServices.firebase().createUser(email: _email.text.trim(), password: _password.text,);
+                  await AuthServices.firebase().sendEmailVerifications();
                   if (!context.mounted) return;
                   Navigator.of(context).pushNamed(verifyEmailRoute);
                   // print(userCredential);
-                } on FirebaseAuthException catch (e) {
-                  if (!mounted) return;
-                  await showErrorDialog(context, e.message.toString());
-                  // ScaffoldMessenger.of(context).showSnackBar(
-                  //   SnackBar(content: Text(e.code ?? "Registration Failed")),
-                  // );
-                } catch (e) {
-                  if (!mounted) return;
-                  await showErrorDialog(context, e.toString());
+                } on UserFireBaseAuthException catch (e)
+                {
+                  await showErrorDialog(context, e.message ?? "Registration Failed");
+                } on UserNotLoggedInAuthException
+                {
+                  await showErrorDialog(context, "User-not logged In",);
+                }
+                on GenericAuthException
+                {
+                  await showErrorDialog(context, "Failed to Register");
                 }
               },
               child: const Text("Register"),
