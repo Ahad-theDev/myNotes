@@ -33,7 +33,7 @@ class NotesServices {
     if (notes.isEmpty) {
       throw CouldNotFindNote();
     }
-    return result = notes.map((noteRow) => DatabaseNote.fromRow(noteRow));
+    return notes.map((noteRow) => DatabaseNote.fromRow(noteRow));
   }
 
   Future<DatabaseNote> getNote({required int id}) async {
