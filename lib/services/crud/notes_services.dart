@@ -44,12 +44,12 @@ class NotesServices {
   }) async {
     await _ensureDbIsOpen();
     final db = _getDatabaseorThrow();
-    await getNote(id: note.id);
-    //update db
-    final updateCount = await db.update(noteTable, {
-      textColumn: text,
-      isSyncWithCloudColumn: 0,
-    });
+    final updateCount = await db.update(
+      noteTable,
+      {textColumn: text, isSyncWithCloudColumn: 0},
+      where: 'id = ?',
+      whereArgs: [note.id],
+    );
 
     if (updateCount == 0) {
       throw CouldNotUpdateNote();
@@ -66,12 +66,18 @@ class NotesServices {
     await _ensureDbIsOpen();
     final db = _getDatabaseorThrow();
     final notes = await db.query(noteTable);
-
-    if (notes.isEmpty) {
-      throw CouldNotFindNote();
-    }
     return notes.map((noteRow) => DatabaseNote.fromRow(noteRow));
   }
+  // Future<Iterable<DatabaseNote>> getAllNotes() async {
+  //   await _ensureDbIsOpen();
+  //   final db = _getDatabaseorThrow();
+  //   final notes = await db.query(noteTable);
+
+  //   if (notes.isEmpty) {
+  //     throw CouldNotFindNote();
+  //   }
+  //   return notes.map((noteRow) => DatabaseNote.fromRow(noteRow));
+  // }
 
   Future<DatabaseNote> getNote({required int id}) async {
     await _ensureDbIsOpen();
