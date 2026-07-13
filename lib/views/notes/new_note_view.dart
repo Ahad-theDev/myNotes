@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mynotes/services/auth/auth_services.dart';
 import 'package:mynotes/services/crud/notes_services.dart';
-import 'package:mynotes/utilities/show_error_dialog.dart';
+import 'package:mynotes/utilities/dialogs/error_dialog.dart';
 
 class NewNoteView extends StatefulWidget {
   const NewNoteView({super.key});
