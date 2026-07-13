@@ -11,12 +11,19 @@ class NotesServices {
   Database? _db;
 
   static final NotesServices _shared = NotesServices._sharedInstance();
-  NotesServices._sharedInstance();
+  NotesServices._sharedInstance() {
+    _noteStreamController = StreamController<List<DatabaseNote>>.broadcast(
+      onListen: () {
+        _noteStreamController.sink.add(_notes);
+      },
+    );
+  }
   factory NotesServices() => _shared;
 
   List<DatabaseNote> _notes = [];
-  final _noteStreamController =
-      StreamController<List<DatabaseNote>>.broadcast();
+  // final _noteStreamController =
+  //     StreamController<List<DatabaseNote>>.broadcast();
+  late final StreamController<List<DatabaseNote>> _noteStreamController;
 
   Stream<List<DatabaseNote>> get allNotes => _noteStreamController.stream;
 
@@ -91,7 +98,7 @@ class NotesServices {
     if (notes.isEmpty) {
       throw CouldNotFindNote();
     } else {
-      final note = await DatabaseNote.fromRow(notes.first);
+      final note = DatabaseNote.fromRow(notes.first);
       _notes.removeWhere((note) => note.id == id);
       _notes.add(note);
       _noteStreamController.add(_notes);
