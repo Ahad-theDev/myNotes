@@ -117,7 +117,7 @@ class MockAuthProvider implements AuthProvider {
     if (password == "password123") {
       throw UserFireBaseAuthException("Invalid Password");
     }
-    const user = AuthUser(isEmailVerified: false, email: 'admin@gmail.com');
+    const user = AuthUser(id:"my_id",isEmailVerified: false, email: 'admin@gmail.com');
     _user = user;
     return Future.value(user);
   }
@@ -143,7 +143,7 @@ class MockAuthProvider implements AuthProvider {
     if (user == null) {
       throw UserFireBaseAuthException("user not Found");
     }
-    const newUser = AuthUser(isEmailVerified: true, email: 'admin@gmail.com');
+    const newUser = AuthUser(id:"mu_id",isEmailVerified: true, email: 'admin@gmail.com');
     await Future.delayed(Duration(seconds: 1));
     _user = newUser;
   }
