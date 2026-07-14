@@ -2,15 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:mynotes/services/auth/auth_services.dart';
 import 'package:mynotes/services/crud/notes_services.dart';
 import 'package:mynotes/utilities/dialogs/error_dialog.dart';
+import 'package:mynotes/utilities/generics/get_arguments.dart';
 
-class NewNoteView extends StatefulWidget {
-  const NewNoteView({super.key});
+class CreateOrUpdateNote extends StatefulWidget {
+  const CreateOrUpdateNote({super.key});
 
   @override
-  State<NewNoteView> createState() => _NewNoteViewState();
+  State<CreateOrUpdateNote> createState() => _CreateOrUpdateNoteState();
 }
 
-class _NewNoteViewState extends State<NewNoteView> {
+class _CreateOrUpdateNoteState extends State<CreateOrUpdateNote> {
   DatabaseNote? _note;
   late final NotesServices _notesService;
   late final TextEditingController _textController;
@@ -36,7 +37,13 @@ class _NewNoteViewState extends State<NewNoteView> {
     _textController.addListener(_textControllerListener);
   }
 
-  Future<DatabaseNote> createNewNote() async {
+  Future<DatabaseNote> createOrGetExistingNote(BuildContext context) async {
+    final widgetNote = context.getArgument<DatabaseNote>();
+    if (widgetNote != null) {
+      _note = widgetNote;
+      _textController.text = widgetNote.text;
+      return widgetNote;
+    }
     final existingNote = _note;
     if (existingNote != null) {
       return existingNote;
@@ -46,7 +53,9 @@ class _NewNoteViewState extends State<NewNoteView> {
     // final owner = await _notesService.getUser(email: email);
     final owner = await _notesService.getOrCreateUser(email: email);
     // final owner = await _notesService.getUser(email: email);
-    return await _notesService.createNote(owner: owner);
+    final newNote = await _notesService.createNote(owner: owner);
+    _note = newNote;
+    return newNote;
   }
 
   void _deleteNoteIfTextIsEmpty() async {
@@ -80,7 +89,7 @@ class _NewNoteViewState extends State<NewNoteView> {
         backgroundColor: const Color.fromARGB(255, 33, 109, 224),
       ),
       body: FutureBuilder<DatabaseNote>(
-        future: createNewNote(),
+        future: createOrGetExistingNote(context),
         builder: (context, snapshot) {
           switch (snapshot.connectionState) {
             case ConnectionState.done:
@@ -90,11 +99,11 @@ class _NewNoteViewState extends State<NewNoteView> {
                   'Something went wrong: ${snapshot.error}',
                 );
               }
-              final note = snapshot.data;
-              if (note == null) {
-                return const CircularProgressIndicator();
-              }
-              _note = note;
+              // final note = snapshot.data;
+              // if (note == null) {
+              //   return const CircularProgressIndicator();
+              // }
+              // _note = note;
               _setupTextControllerListener();
               return TextField(
                 controller: _textController,
