@@ -4,6 +4,7 @@ import 'package:mynotes/constants/routes.dart';
 import 'package:mynotes/services/auth/auth_services.dart';
 import 'package:mynotes/services/auth/bloc/auth_bloc.dart';
 import 'package:mynotes/services/auth/bloc/auth_event.dart';
+import 'package:mynotes/services/auth/bloc/auth_state.dart';
 import 'package:mynotes/utilities/dialogs/error_dialog.dart';
 
 import '../services/auth/auth_exceptions.dart';
@@ -77,43 +78,34 @@ class _LoginViewState extends State<LoginView> {
                 return null;
               },
             ),
-            TextButton(
-              onPressed: () async {
-                if (!_formKey.currentState!.validate()) {
-                  return;
+            BlocListener<AuthBloc, AuthState>(
+              listener: (context, state) async {
+                if (state is AuthStateLoggedOut) {
+                  if (state.exception is UserNotLoggedInAuthException) {
+                    await showErrorDialog(context, "User-not logged In");
+                  } else if (state.exception is UserFireBaseAuthException) {
+                    final fireBaseEx =
+                        state.exception as UserFireBaseAuthException;
+                    await showErrorDialog(
+                      context,
+                      fireBaseEx.message ?? "Authentication failed",
+                    );
+                  } else if (state.exception is GenericAuthException) {
+                    await showErrorDialog(context, "Authentication Error");
+                  }
                 }
-                try {
+              },
+              child: TextButton(
+                onPressed: () async {
+                  if (!_formKey.currentState!.validate()) {
+                    return;
+                  }
                   context.read<AuthBloc>().add(
                     AuthEventLogIn(_email.text.trim(), _password.text),
                   );
-                  // await AuthServices.firebase().logIn(
-                  //   email: _email.text.trim(),
-                  //   password: _password.text,
-                  // );
-                  // final user = AuthServices.firebase().currentUser;
-                  // if (user?.isEmailVerified ?? false) {
-                  //   if (!context.mounted) return;
-                  //   Navigator.of(
-                  //     context,
-                  //   ).pushNamedAndRemoveUntil(notesRoute, (r) => false);
-                  // } else {
-                  //   if (!context.mounted) return;
-                  //   Navigator.of(
-                  //     context,
-                  //   ).pushNamedAndRemoveUntil(verifyEmailRoute, (r) => false);
-                  // }
-                } on UserFireBaseAuthException catch (e) {
-                  await showErrorDialog(
-                    context,
-                    e.message ?? "Authentication failed",
-                  );
-                } on UserNotLoggedInAuthException {
-                  await showErrorDialog(context, "User-not logged In");
-                } on GenericAuthException {
-                  await showErrorDialog(context, "Authentication Error");
-                }
-              },
-              child: const Text("Login"),
+                },
+                child: const Text("Login"),
+              ),
             ),
             TextButton(
               onPressed: () {
