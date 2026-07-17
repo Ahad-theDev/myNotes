@@ -4,17 +4,19 @@ import 'package:mynotes/services/auth/auth_user.dart';
 
 @immutable
 abstract class AuthState {
-  const AuthState();
+  final bool isLoading;
+  final String? loadingText;
+  const AuthState({required this.isLoading, this.loadingText="Please wait a moment"});
 }
 
 class AuthStateUninitialized extends AuthState {
-  const AuthStateUninitialized();
+  const AuthStateUninitialized({required bool isLoad}) : super(isLoading: isLoad);
 }
 
 class AuthStateRegistering extends AuthState {
   final Exception? exception;
 
-  const AuthStateRegistering(this.exception);
+  const AuthStateRegistering({required this.exception,required bool isLoad}) : super(isLoading: isLoad);
 }
 // class AuthStateLoading extends AuthState {
 //   const AuthStateLoading();
@@ -22,18 +24,17 @@ class AuthStateRegistering extends AuthState {
 
 class AuthStateLoggedIn extends AuthState {
   final AuthUser user;
-  const AuthStateLoggedIn(this.user);
+  const AuthStateLoggedIn({required this.user,required bool isLoad}) : super(isLoading: isLoad);
 }
 
 class AuthStateNeedsVarification extends AuthState {
   final Exception? exception;
-  const AuthStateNeedsVarification(this.exception);
+  const AuthStateNeedsVarification({required this.exception,required bool isLoad}) : super(isLoading: isLoad);
 }
 
 class AuthStateLoggedOut extends AuthState with Equatable {
   final Exception? exception;
-  final bool isLoading;
-  const AuthStateLoggedOut({required this.exception, required this.isLoading});
+  const AuthStateLoggedOut({required this.exception, required super.isLoading,super.loadingText = null});
 
   @override
   List<Object?> get props => [exception, isLoading];
