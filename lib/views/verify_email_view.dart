@@ -1,8 +1,8 @@
-// import 'package:firebase_auth/firebase_auth.dart';
-// import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:mynotes/constants/routes.dart';
-import 'package:mynotes/services/auth/auth_services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:mynotes/services/auth/bloc/auth_bloc.dart';
+import 'package:mynotes/services/auth/bloc/auth_event.dart';
+import 'package:mynotes/services/auth/bloc/auth_state.dart';
 
 import '../services/auth/auth_exceptions.dart';
 import '../utilities/dialogs/error_dialog.dart';
@@ -17,47 +17,44 @@ class VerifyEmailView extends StatefulWidget {
 class _VerifyEmailViewState extends State<VerifyEmailView> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("Verify Email"),
-        backgroundColor: Colors.blue,
-      ),
-      body: Column(
-        children: [
-          const Text(
-            "We've sent you email verification,check your inbox or spam folder",
-          ),
-          const Text("haven't receive yet click button below"),
-          TextButton(
-            onPressed: () async {
-              try{
-                AuthServices.firebase().sendEmailVerifications();
-              } on UserNotLoggedInAuthException
-              {
-                await showErrorDialog(context, "User-not logged In",);
-              } catch (e)
-              {
-                await showErrorDialog(context, e.toString(),);
-              }
-            },
-            child: const Text("Send email Verification"),
-          ),
-          TextButton(onPressed: () async {
-            try{
-              await AuthServices.firebase().logOut();
-            } on UserNotLoggedInAuthException
-            {
-              if(!context.mounted) return;
-              await showErrorDialog(context, "User-not logged In",);
-            }catch (e)
-            {
-              if(!context.mounted) return;
-              await showErrorDialog(context, e.toString(),);
-            }
-            if(!context.mounted) return;
-            Navigator.of(context).pushNamedAndRemoveUntil(registerRoute, (r)=> false);
-          }, child: const Text("Restart")),
-        ],
+    return BlocListener<AuthBloc, AuthState>(
+      listener: (context, state) async {
+        if (state is AuthStateNeedsVarification) {
+          if (state.exception is UserNotLoggedInAuthException) {
+            await showErrorDialog(context, "User-not logged In");
+          } else if (state.exception != null) {
+            final excep = state.exception;
+            showErrorDialog(context, excep.toString());
+          }
+        }
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text("Verify Email"),
+          backgroundColor: Colors.blue,
+        ),
+        body: Column(
+          children: [
+            const Text(
+              "We've sent you email verification,check your inbox or spam folder",
+            ),
+            const Text("haven't receive yet click button below"),
+            TextButton(
+              onPressed: () {
+                context.read<AuthBloc>().add(
+                  const AuthEventSentEmailVerification(),
+                );
+              },
+              child: const Text("Send email Verification"),
+            ),
+            TextButton(
+              onPressed: () async {
+                context.read<AuthBloc>().add(const AuthEventLogOut());
+              },
+              child: const Text("Restart"),
+            ),
+          ],
+        ),
       ),
     );
   }
