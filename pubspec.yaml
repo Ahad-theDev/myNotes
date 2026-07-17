@@ -45,6 +45,7 @@ dependencies:
   bloc: ^9.2.1
   flutter_bloc: ^9.1.1
   equatable: ^2.1.0
+  flutter_launcher_icons: ^0.14.4
 
 dev_dependencies:
   flutter_test:
@@ -57,6 +58,7 @@ dev_dependencies:
   # rules and activating additional ones.
   flutter_lints: ^6.0.0
   test: ^1.30.0
+  flutter_native_splash: ^2.4.8
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -99,3 +101,15 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+
+# --- Splash screen (flutter_native_splash) ---
+# Background = deepPurple (matches the app theme seed color).
+# Logo = your existing launcher icon, centered on top.
+flutter_native_splash:
+  color: "#6750A4"
+  image: assets/icon/icon.png
+  android: true
+  ios: true
+  web: false
+  android_gravity: center
+  ios_content_mode: center
