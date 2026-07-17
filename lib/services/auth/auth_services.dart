@@ -7,7 +7,7 @@ class AuthServices implements AuthProvider {
 
   AuthServices(this.provider);
 
-  factory AuthServices.firebase() => AuthServices(FirebaseAuthProvider(),);
+  factory AuthServices.firebase() => AuthServices(FirebaseAuthProvider());
   @override
   Future<AuthUser> createUser({
     required String email,
@@ -19,7 +19,7 @@ class AuthServices implements AuthProvider {
 
   @override
   Future<AuthUser> logIn({required String email, required String password}) =>
-      provider.logIn(email: email, password: password,);
+      provider.logIn(email: email, password: password);
 
   @override
   Future<void> logOut() => provider.logOut();
@@ -29,4 +29,8 @@ class AuthServices implements AuthProvider {
 
   @override
   Future<void> initialize() => provider.initialize();
+
+  @override
+  Future<void> sendPasswordReset({required String toEmail}) =>
+      provider.sendPasswordReset(toEmail: toEmail);
 }

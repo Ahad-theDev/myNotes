@@ -101,6 +101,11 @@ class _LoginViewState extends State<LoginView> {
                   );
                 },
                 child: const Text("Login"),
+              ),TextButton(
+                onPressed: () async {
+                  context.read<AuthBloc>().add(const AuthEventForgetPassword());
+                },
+                child: const Text("I forget my password"),
               ),
               TextButton(
                 onPressed: () {

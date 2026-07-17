@@ -6,17 +6,30 @@ import 'package:mynotes/services/auth/auth_user.dart';
 abstract class AuthState {
   final bool isLoading;
   final String? loadingText;
-  const AuthState({required this.isLoading, this.loadingText="Please wait a moment"});
+  const AuthState({
+    required this.isLoading,
+    this.loadingText = "Please wait a moment",
+  });
 }
 
 class AuthStateUninitialized extends AuthState {
-  const AuthStateUninitialized({required bool isLoad}) : super(isLoading: isLoad);
+  const AuthStateUninitialized({required bool isLoad})
+    : super(isLoading: isLoad);
 }
 
 class AuthStateRegistering extends AuthState {
   final Exception? exception;
 
-  const AuthStateRegistering({required this.exception,required bool isLoad}) : super(isLoading: isLoad);
+  const AuthStateRegistering({required this.exception, required bool isLoad})
+    : super(isLoading: isLoad);
+}
+
+class AuthStateForgetPassword extends AuthState {
+  final Exception? exception;
+  final bool hasSentEmail;
+
+  const AuthStateForgetPassword({required super.isLoading, super.loadingText, required this.exception, required this.hasSentEmail});
+
 }
 // class AuthStateLoading extends AuthState {
 //   const AuthStateLoading();
@@ -24,17 +37,25 @@ class AuthStateRegistering extends AuthState {
 
 class AuthStateLoggedIn extends AuthState {
   final AuthUser user;
-  const AuthStateLoggedIn({required this.user,required bool isLoad}) : super(isLoading: isLoad);
+  const AuthStateLoggedIn({required this.user, required bool isLoad})
+    : super(isLoading: isLoad);
 }
 
 class AuthStateNeedsVarification extends AuthState {
   final Exception? exception;
-  const AuthStateNeedsVarification({required this.exception,required bool isLoad}) : super(isLoading: isLoad);
+  const AuthStateNeedsVarification({
+    required this.exception,
+    required bool isLoad,
+  }) : super(isLoading: isLoad);
 }
 
 class AuthStateLoggedOut extends AuthState with Equatable {
   final Exception? exception;
-  const AuthStateLoggedOut({required this.exception, required super.isLoading,super.loadingText = null});
+  const AuthStateLoggedOut({
+    required this.exception,
+    required super.isLoading,
+    super.loadingText = null,
+  });
 
   @override
   List<Object?> get props => [exception, isLoading];

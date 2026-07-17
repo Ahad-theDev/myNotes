@@ -52,14 +52,11 @@ class FirebaseAuthProvider implements AuthProvider {
         password: password,
       );
       final user = currentUser;
-      if (user != null)
-        {
-          return user;
-        }
-      else
-        {
-          throw UserNotLoggedInAuthException();
-        }
+      if (user != null) {
+        return user;
+      } else {
+        throw UserNotLoggedInAuthException();
+      }
     } on FirebaseAuthException catch (e) {
       throw UserFireBaseAuthException(e.message);
     } catch (_) {
@@ -68,16 +65,13 @@ class FirebaseAuthProvider implements AuthProvider {
   }
 
   @override
-  Future<void> logOut() async{
+  Future<void> logOut() async {
     final user = currentUser;
-    if (user != null)
-      {
-        await FirebaseAuth.instance.signOut();
-      }
-    else
-      {
-        throw UserNotLoggedInAuthException();
-      }
+    if (user != null) {
+      await FirebaseAuth.instance.signOut();
+    } else {
+      throw UserNotLoggedInAuthException();
+    }
   }
 
   @override
@@ -91,9 +85,21 @@ class FirebaseAuthProvider implements AuthProvider {
   }
 
   @override
-  Future<void> initialize() async{
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
-        }
+  Future<void> initialize() async {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  }
+
+  @override
+  Future<void> sendPasswordReset({required String toEmail}) async {
+    try {
+      await FirebaseAuth.instance.sendPasswordResetEmail(email: toEmail);
+    }on FirebaseAuthException catch(e)
+    {
+      throw UserFireBaseAuthException(e.message);
+    } catch (_) {
+      throw GenericAuthException();
+    }
+  }
 }

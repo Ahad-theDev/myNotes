@@ -147,4 +147,9 @@ class MockAuthProvider implements AuthProvider {
     await Future.delayed(Duration(seconds: 1));
     _user = newUser;
   }
+  
+  @override
+  Future<void> sendPasswordReset({required String toEmail}) {
+    throw UnimplementedError();
+  }
 }
